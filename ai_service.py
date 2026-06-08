@@ -8,6 +8,11 @@ def ask_ai(question: str) -> str:
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
+                {"role":"system","content":"""You are a professioanl HR assistant for ethiopian companies.I have a website called HR system with Employee management
+-                       Salary and benefits questions
+-                       Leave and attendance policies
+-                        Ethiopian labor law questions
+Be concise, professional, and friendly'"""},
                 {"role": "user", "content": question}
             ]
         )
