@@ -1,25 +1,37 @@
-from groq import Groq
-from config import GROQ_API_KEY, MODEL_NAME
+from langchain_groq import ChatGroq
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from data_analyzer import get_company_summary
+from dotenv import load_dotenv
+import os
 
-client = Groq(api_key=GROQ_API_KEY)
+load_dotenv()
 
-def ask_ai(question: str) -> str:
+llm = ChatGroq(
+    api_key=os.getenv("GROQ_API_KEY"),
+    model="llama-3.3-70b-versatile"
+)
+
+def ask_ai(question: str, history: list = []) -> str:
     try:
         company_data = get_company_summary()
-        
-        response = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": f"""You are a professional HR assistant for an Ethiopian company.
-You have access to real company data:
+
+        chat_history = []
+        for msg in history[:-1]:
+            if msg["role"] == "user":
+                chat_history.append(HumanMessage(content=msg["content"]))
+            elif msg["role"] == "ai":
+                chat_history.append(AIMessage(content=msg["content"]))
+
+        chat_history.append(HumanMessage(content=question))
+
+        all_messages = [
+            SystemMessage(content=f"""You are a professional HR assistant 
+for an Ethiopian company. You have access to real company data:
 {company_data}
-Use this data to answer questions accurately.
-If asked about employees, salary, or performance — use the data above.
-Be concise and professional."""},
-                {"role": "user", "content": question}
-            ]
-        )
-        return response.choices[0].message.content
+Be concise and professional.""")
+        ] + chat_history
+
+        response = llm.invoke(all_messages)
+        return response.content
     except Exception as e:
         return f"Error: {str(e)}"
