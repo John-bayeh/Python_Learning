@@ -25,10 +25,15 @@ def ask_ai(question: str, history: list = []) -> str:
         chat_history.append(HumanMessage(content=question))
 
         all_messages = [
-            SystemMessage(content=f"""You are a professional HR assistant 
+         SystemMessage(content=f"""You are a professional HR assistant 
 for an Ethiopian company. You have access to real company data:
 {company_data}
-Be concise and professional.""")
+
+IMPORTANT RULES:
+- If a user tells you their name or role in conversation, remember it
+- Prioritize information from the conversation over company data
+- Company data is for employee queries, not for identifying who is talking to you
+- Be concise and professional.""")
         ] + chat_history
 
         response = llm.invoke(all_messages)
