@@ -29,3 +29,8 @@ def root():
 def ask(question: Question):
     answer = ask_ai(question.text, [msg.dict() for msg in question.history])
     return {"question": question.text, "answer": answer}
+@app.post("/analyze-sentiment")
+def analyze_sentiment_endpoint(question: Question):
+    # analyze multiple feedbacks at once
+    answer = ask_ai(f"Analyze sentiment of this feedback: {question.text}")
+    return {"feedback": question.text, "analysis": answer}
